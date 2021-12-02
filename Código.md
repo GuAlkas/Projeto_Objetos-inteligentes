@@ -1,0 +1,99 @@
+# Projeto_Portão-eletrônico
+Repositório criado para armazenar e disponibilizar o código do projeto desenvolvido na matéria de objetos inteligentes conectados.
+
+
+Código:
+
+Teste_Portao:
+  #include "config.h"
+
+
+  //Defindo pinos que irão controlar o motor
+  #define IN1 18
+  #define IN2 19
+
+
+
+  AdafruitIO_Feed *Portao = io.feed("Teste");
+
+  void setup() {
+
+  //Definindo as entradas e saídas
+
+  pinMode(IN1,OUTPUT);
+  pinMode(IN2,OUTPUT);
+  pinMode(33,INPUT_PULLUP);
+  pinMode(32,INPUT_PULLUP);
+
+
+
+  //Sequência de conexão com a rede 
+    Serial.begin(115200);
+
+
+    while(! Serial);
+
+    Serial.print("Connecting to Adafruit IO");
+
+
+    io.connect();
+
+   //Definição da tratativa da tag portao adafruit.io
+    Portao->onMessage(handleMessage);
+
+
+    while(io.mqttStatus() < AIO_CONNECTED) {
+      Serial.print(".");
+      delay(500);
+    }
+
+
+    Portao->get();
+
+
+    Serial.println();
+    Serial.println(io.statusText());
+
+
+  }
+
+  void loop() {
+
+  //comando obrigatório para realizar conexão 
+    io.run();
+  //Atuações dos fins de curso parando o funcionamento do motor  
+    if(digitalRead(32)==LOW) {
+      digitalWrite(IN1,LOW);
+      digitalWrite(IN2,LOW);
+    }
+
+    if(digitalRead(33)==LOW) {
+      digitalWrite(IN1,LOW);
+      digitalWrite(IN2,LOW);
+    }
+
+  Serial.println(digitalRead(32));
+  Serial.println(digitalRead(33));
+
+  }
+
+  //Verificação do status do comando do adafruit.io
+  void handleMessage(AdafruitIO_Data *data) {
+
+    Serial.print("received <- ");
+    Serial.println(data->value());
+
+
+    if(data->isTrue()){
+      digitalWrite(IN1,HIGH);
+      digitalWrite(IN2,LOW);
+
+    }
+
+      else { 
+      digitalWrite(IN1,LOW);
+      digitalWrite(IN2,HIGH);
+   }
+
+
+  }
